@@ -1,0 +1,23 @@
+services:
+  api:
+    build: .
+    container_name: weather-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - WEATHERSTACK_API_KEY=${WEATHERSTACK_API_KEY}
+      - WEATHERSTACK_BASE_URL=${WEATHERSTACK_BASE_URL:-https://api.weatherstack.com}
+      - WEATHERSTACK_REQUEST_TIMEOUT=${WEATHERSTACK_REQUEST_TIMEOUT:-10}
+      - CACHE_TTL_SECONDS=${CACHE_TTL_SECONDS:-600}
+      - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT_PER_MINUTE:-2}
+      - RETRY_MAX_RETRIES=${RETRY_MAX_RETRIES:-3}
+      - RETRY_INITIAL_DELAY=${RETRY_INITIAL_DELAY:-0.5}
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
